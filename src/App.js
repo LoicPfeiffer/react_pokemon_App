@@ -3,21 +3,25 @@ import React, { useEffect, useState } from "react";
 import Pokemon from "./components/Pokemon";
 
 export default function App() {
-  const [data, setData] = useState();
+  const [data, setData] = useState(undefined);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       /* navigator.geolocation.getCurrentPosition(function (position) {
         setLat(position.coords.latitude);
         setLong(position.coords.longitude);
       });*/
+      console.log(process.env.REACT_APP_API_URL);
+      fetch(process.env.REACT_APP_API_URL).then((res) => {
+        /* console.log(res);*/
+        res
+          .json()
 
-      await fetch(`${process.env.REACT_APP_API_URL}`)
-        .then((res) => res.json())
-        .then((result) => {
-          setData(result);
-          console.log(result);
-        });
+          .then((result) => {
+            setData(result.results);
+            console.log(result);
+          });
+      });
     };
     fetchData();
   }, []);
@@ -25,7 +29,9 @@ export default function App() {
   return (
     <div className="App">
       {typeof data != "undefined" ? (
-        <pokemon pokemonData={data} />
+        data.map((pokemon) => (
+          <Pokemon pokemonData={pokemon} key={pokemon.name} />
+        ))
       ) : (
         <div>{JSON.stringify(data, undefined, true)}</div>
       )}
